@@ -14,26 +14,26 @@ Para la población de abuelos se tomo en cuenta información de 2 articulos el c
 Para los modelos para predecir la satisfacción se escogieron con la excepción de Edad y Salud distintas variables para cada modelo
 #### Para el modelo de los Abuelos
 Se escogieron las variables  de:
--Edad
--Estado Civil 
--Sensacion de seguridad
--Condicion del Hogar
--Tenencia de bienes principales
--Tenencia de bienes Secundarios
--Salud
--Servicios Básicos
+- Edad
+- Estado Civil 
+- Sensacion de seguridad
+- Condicion del Hogar
+- Tenencia de bienes principales
+- Tenencia de bienes Secundarios
+- Salud
+- Servicios Básicos
 
 #### Para el modelo de los Niños
 Se escogieron las variables
--Edad
--Ocupacion
--Sabe leer y escribir
--Uso de dispositivos electronicos diferentes al celular
--Uso de Internet
--Uso de Celular
--Numero de actividades de ocio en internet
--Numero de actividades de ocio en celulares
--Salud
+- Edad
+- Ocupacion
+- Sabe leer y escribir
+- Uso de dispositivos electronicos diferentes al celular
+- Uso de Internet
+- Uso de Celular
+- Numero de actividades de ocio en internet
+- Numero de actividades de ocio en celulares
+- Salud
 
 
 
