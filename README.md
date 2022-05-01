@@ -8,3 +8,5 @@ En la siguiente aplicacion podra
 https://ancgarciamo.shinyapps.io/Prediccion_de_Satisfaccion/
 
 ### Bibliografia
+- [Shiny](https://shiny.rstudio.com/)
+- [Stack overflow](https://stackoverflow.com/)
