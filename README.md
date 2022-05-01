@@ -37,11 +37,16 @@ Se escogieron las variables
 - Numero de actividades de ocio en celulares
 - Salud
 
+Para los abuelos se tomo variables simples como el estado civil , como se siente de salud, sensacion de seguridad ,los servicios basicos que posee, cuantos bienes posee en el hogar , separandolos por bienes fundamentales y bienes menos necesarios.
 
+Para los niños se tomo en que se ocupan , si saben leer o escribir , el uso de dispositivos electronicos separados por el celular y los demas , ademas de las actividades de ocio en internet y en un celular.
+
+### Video Promocional
+El video se podra ver en la siguiente direccion:
 
 
 ### Aplicacion Web
-En la siguiente aplicacion podra 
+En la siguiente aplicacion podra consultar en la siguiente direccion:
 https://ancgarciamo.shinyapps.io/Prediccion_de_Satisfaccion/
 
 ### Bibliografia
@@ -51,3 +56,5 @@ https://ancgarciamo.shinyapps.io/Prediccion_de_Satisfaccion/
 - https://www.ceupe.com/blog/etapas-de-desarrollo-de-la-conciencia.html
 - https://www.eugin.com.co/eugin-presenta-la-primera-encuesta-internacional-sobre-fertilidad-edad-para-tener-hijos-donacion-de-ovulos/
 - https://www.eltiempo.com/vida/educacion/crece-tendencia-de-parejas-jovenes-a-no-tener-hijos-465196
+- https://faros.hsjdbcn.org/es/articulo/beneficios-tiempo-ocio-desarrollo-infantil
+- https://www.publico.es/psicologia-y-mente/biblioterapia-leer-nos-hace-mas-felices/
