@@ -10,9 +10,9 @@ Además a los niños se les clasificara siendo mayores de 3 años y menores de 1
  
 Para la población de abuelos se tomo en cuenta información de 2 articulos el cual uno exponía que la edad media del primer hijo es a los 22 años  y que el 40% de los hogares no tienen hijos ,así que tomamos 60% de los datos de las personas mayores de 44 años para la población de abuelos.
 
-###Modelos
+### Modelos
 Para los modelos para predecir la satisfacción se escogieron con la excepción de Edad y Salud distintas variables para cada modelo
-Para el modelo de los Abuelos
+#### Para el modelo de los Abuelos
 Se escogieron las variables  de:
 -Edad
 -Estado Civil 
@@ -23,7 +23,7 @@ Se escogieron las variables  de:
 -Salud
 -Servicios Básicos
 
-Para el modelo de los Niños
+#### Para el modelo de los Niños
 Se escogieron las variables
 -Edad
 --Ocupacion
