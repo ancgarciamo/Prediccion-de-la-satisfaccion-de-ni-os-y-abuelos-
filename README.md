@@ -26,20 +26,13 @@ Se escogieron las variables  de:
 #### Para el modelo de los Niños
 Se escogieron las variables
 -Edad
---Ocupacion
-
+-Ocupacion
 -Sabe leer y escribir
-
 -Uso de dispositivos electronicos diferentes al celular
-
 -Uso de Internet
-
 -Uso de Celular
-
 -Numero de actividades de ocio en internet
-
 -Numero de actividades de ocio en celulares
-
 -Salud
 
 
