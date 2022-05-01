@@ -3,11 +3,13 @@ Este trabajo toma pretende a partir de los datos obtenidos de la Encuesta de Cal
 
 Como podemos ver en el siguiente grafico la edad por si misma no es un factor determinante para la satisfacción, sin embargo nos muestra que las personas menores de 15 años no responden la encuesta.
 
+![](https://github.com/ancgarciamo/Prediccion-de-la-satisfaccion-de-ni-os-y-abuelos-/blob/main/Imagenes/Satisfaccion%20y%20edad.PNG)
  
 Para asignarle una satisfacción a las personas que no contestaron se obtuvo la probabilidad de las personas que si contestaron, y con una función aleatoria en proporción a esa probabilidad se asigno una satisfacción a las personas menores de 15 años ya que ahí se encuentra una de nuestras poblaciones objetivo.
 Además a los niños se les clasificara siendo mayores de 3 años y menores de 13 años ya que desde los 4 años es que se desarrolla su yo propio , lo cual les permitiría responder la encuesta y hasta los 12 años , ya que esa es la edad antes de la adolescencia según el Instituto de bienestar familiar.
 
- 
+![](https://github.com/ancgarciamo/Prediccion-de-la-satisfaccion-de-ni-os-y-abuelos-/blob/main/Imagenes/probabilidad.PNG)
+
 Para la población de abuelos se tomo en cuenta información de 2 articulos el cual uno exponía que la edad media del primer hijo es a los 22 años  y que el 40% de los hogares no tienen hijos ,así que tomamos 60% de los datos de las personas mayores de 44 años para la población de abuelos.
 
 ### Modelos
