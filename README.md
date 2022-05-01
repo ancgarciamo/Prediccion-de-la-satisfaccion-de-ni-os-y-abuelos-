@@ -47,3 +47,7 @@ https://ancgarciamo.shinyapps.io/Prediccion_de_Satisfaccion/
 ### Bibliografia
 - [Shiny](https://shiny.rstudio.com/)
 - [Stack overflow](https://stackoverflow.com/)
+- https://www.icbf.gov.co/cargues/avance/docs/concepto_icbf_0027891_2010.htm
+- https://www.ceupe.com/blog/etapas-de-desarrollo-de-la-conciencia.html
+- https://www.eugin.com.co/eugin-presenta-la-primera-encuesta-internacional-sobre-fertilidad-edad-para-tener-hijos-donacion-de-ovulos/
+- https://www.eltiempo.com/vida/educacion/crece-tendencia-de-parejas-jovenes-a-no-tener-hijos-465196
