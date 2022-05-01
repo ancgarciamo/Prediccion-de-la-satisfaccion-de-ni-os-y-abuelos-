@@ -1,0 +1,273 @@
+---
+title: "Modelos de Abuelos"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+ 
+```{r lectura de librerias}
+library(readr)
+library(dplyr,warn.conflicts = FALSE)
+library(tidyr,warn.conflicts = FALSE)
+library(tidyverse,warn.conflicts = FALSE)
+library(lubridate,warn.conflicts = FALSE)
+library(writexl)
+library(caTools)
+library(caret)
+library(Metrics)
+```
+
+```{r Lectura de bases de datos para Abuelos}
+
+Caracteristicas_hogar <- read.csv2("Caracteristicas y composicion del hogar.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Condiciones_HogarBienes <- read.csv2("Condiciones de vida del hogar y tenencia de bienes.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Datos_de_Vivienda <- read.csv2("Datos de la vivienda.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+ServiciosHogar <- read.csv2("Servicios del hogar.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Tecnologias_info_y_comunicacion <- read.csv2("Tecnologias de informacion y comunicacion.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+tenenciafinanciacion <- read.csv2("Tenencia y financiacion de la vivienda que ocupa el hogar.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Salud <- read.csv2("Salud.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+```
+
+Ingenieria de Caracteristicas
+
+
+X1: Edad
+De la base de datos Caracteristicas y composicion del hogar se toma la variable P6040 que indica cuantos años ha cumplido
+
+X2:Estado Civil 
+De la base de datos Caracteristicas y composicion del hogar se toma la variable P5502 y se redimensiona ,pasando de 1 a 6 , a 1 a 5
+siendo el nuevo 1 =viudo, 2=Divorciado,3=Soltero,4=Union Libre,5=Casado 
+
+X3:Sensacion de seguridad
+De la base de datos Condiciones de vida del hogar y tenencia de bienes se toma la variable P9010 , la cual toma valores de 1 para seguro y 2 para inseguro
+
+X4:Condicion del Hogar
+De la base de datos Condiciones de vida del hogar y tenencia de bienes se toma la variable P9030 , la cual toma valores de 1 a 4 , siendo 1   bueno ,2 siendo regular, 3 siendo malo y  4  muy malo
+
+
+X5:Tenencia de bienes principales
+De la base de datos Condiciones de vida del hogar y tenencia de bienes usando las variables P1077S1,P1077S2,P1077S3,P1077S4,P1077S15,P1077S16,P1077S17 indican con 1 si la persona posee el bien de la variable y 2 para negarlo.
+La lista de bienes que considero fundamentales son Maquina lavadora de ropa, Nevera,Estufa electrica,horno de Gas, Moto,Carro y Bicicleta , ya que constituyen necesidades basicas para la alimentacion adecuada y el transporte. 
+la variable se transforma y cambia la opcion de 2 de negarlo por un 0 y se suman todas , para indicar cuantos bienes principales posee.
+
+X6:Tenencia de bienes Secundarios
+De la base de datos Condiciones de vida del hogar y tenencia de bienes usando las variables P1077S5,P1077S6,P1077S7,P1077S8,P1077S9,P1077S10,P1077S11,P1077S12,P1077S13,P1077S14,P1077S19,P1077S20,P1077S21,P1077S22,P1077S23,P1077S27 indican con 1 si la persona posee el bien de la variable y 2 para negarlo.
+la lista de bienes que  considero secundarios son( Calentador de agua, tv a color convencional,tv lcd plasma,reproductor de video , equipo de sonido, aire acondicionado, ventilador,reproductor digital, servicio de tv,camara,portatil,computador de escritorio,tablet y plancha)
+
+la variable se transforma y cambia la opcion de 2 de negarlo por un 0 y se suman todas , para indicar cuantos bienes secundarios posee.
+
+X7:Salud
+De la base de datos Salud se obtiene la variable P6127 que nos indica como de salud se siente en general la persona , tomando valores de 1 a 4	,siendo 1  muy bueno ,2 siendo bueno, 3 siendo regular y  4  malo
+
+X8:Servicios Basicos
+De la base de datos Caracteristicas y composicion del hogar usando las variables P8520S1,P8520S3,P8520S4,P8520S5 indican con 1 si la persona posee el servicio de la variable y 2 para negarlo.
+Los servicios son (Energia electrica , Recoleccion de basuras, Acueducto y Alcantarillado)
+
+la variable se transforma y cambia la opcion de 2 de negarlo por un 0 y se suman todas , para indicar cuantos servicios basicos posee.
+
+Y: Satisfaccion
+De la base de datos Caracteristicas y composicion del hogar tomamos la variable P1895 que indica la satisfaccion de 0 a 10, siendo 0 lo mas insatisfecho con la vida y 10 lo mas satifecho con la vida
+
+```{r Correccion de x2}
+Caracteristicas_hogar_aux<-Caracteristicas_hogar
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 1] <- 14
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 2] <- 14
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 3] <- 11
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 4] <- 12
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 5] <- 13
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 6] <- 15
+
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 11] <- 1
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 12] <- 2
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 13] <- 3
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 14] <- 4
+Caracteristicas_hogar_aux["P5502"][Caracteristicas_hogar_aux["P5502"] == 15] <- 5
+```
+
+
+
+
+```{r x1 x2 y}
+Caracteristicas_Abuelo<-Caracteristicas_hogar_aux %>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,FEX_C,P6040,P1895,P5502)%>%
+  dplyr::filter(P6040>44)%>%
+  rename(Satisfaccion=P1895)%>%
+  rename(Edad=P6040,
+         Estado_Civil=P5502)
+
+```
+
+Por el analisis descriptivo, se acordo que se usara el 60% de las personas de 45 años o mas.
+```{r sesenta por ciento}
+Partir=sample.split(Caracteristicas_Abuelo,SplitRatio = 0.6)
+Caracteristicas_de_Abuelo=subset(Caracteristicas_Abuelo,Partir==TRUE)
+```
+
+
+
+```{r Correccion x5 x6}
+Condiciones_HogarBienes2<-Condiciones_HogarBienes
+Condiciones_HogarBienes2["P1077S1"][Condiciones_HogarBienes2["P1077S1"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S2"][Condiciones_HogarBienes2["P1077S2"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S3"][Condiciones_HogarBienes2["P1077S3"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S4"][Condiciones_HogarBienes2["P1077S4"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S5"][Condiciones_HogarBienes2["P1077S5"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S6"][Condiciones_HogarBienes2["P1077S6"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S7"][Condiciones_HogarBienes2["P1077S7"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S8"][Condiciones_HogarBienes2["P1077S8"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S9"][Condiciones_HogarBienes2["P1077S9"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S10"][Condiciones_HogarBienes2["P1077S10"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S11"][Condiciones_HogarBienes2["P1077S11"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S12"][Condiciones_HogarBienes2["P1077S12"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S13"][Condiciones_HogarBienes2["P1077S13"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S14"][Condiciones_HogarBienes2["P1077S14"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S15"][Condiciones_HogarBienes2["P1077S15"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S16"][Condiciones_HogarBienes2["P1077S16"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S17"][Condiciones_HogarBienes2["P1077S17"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S18"][Condiciones_HogarBienes2["P1077S18"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S19"][Condiciones_HogarBienes2["P1077S19"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S20"][Condiciones_HogarBienes2["P1077S20"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S21"][Condiciones_HogarBienes2["P1077S21"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S22"][Condiciones_HogarBienes2["P1077S22"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S23"][Condiciones_HogarBienes2["P1077S23"] == 2] <- 0
+Condiciones_HogarBienes2["P1077S27"][Condiciones_HogarBienes2["P1077S27"] == 2] <- 0
+```
+
+
+
+```{r x3 x4 x5 x6}
+Condiciones_HogarBienes1<-Condiciones_HogarBienes2 %>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,P9010,P9030,P1077S1,P1077S1,P1077S2,P1077S3,P1077S4,P1077S5,P1077S6,
+          P1077S7,P1077S8,P1077S9,P1077S10,P1077S11,P1077S12,P1077S13,P1077S14,P1077S15,P1077S16,P1077S17,
+          P1077S19,P1077S20,P1077S21,P1077S22,P1077S23,P1077S27)%>%
+  mutate(Tenencia_de_bienes_importantes=P1077S1+P1077S2+P1077S3+P1077S4+P1077S15+P1077S16+P1077S17)%>%
+  mutate(Tenencia_de_bienes_secundarios=P1077S5+P1077S6+
+          P1077S7+P1077S8+P1077S9+P1077S10+P1077S11+P1077S12+P1077S13+P1077S14+
+          P1077S19+P1077S20+P1077S21+P1077S22+P1077S23+P1077S27)%>%
+  mutate(Sensacion_de_seguridad=P9010)%>%
+  mutate(Condicion_del_Hogar=P9010)
+
+Condiciones_HogarAbuelo<-Condiciones_HogarBienes1%>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,Sensacion_de_seguridad,Condicion_del_Hogar,
+                 Tenencia_de_bienes_importantes,Tenencia_de_bienes_secundarios)
+  
+```
+
+```{r x7}
+SaludAbuelo<-Salud%>%
+    dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,P6127)%>%
+    rename(Salud=P6127)
+```
+
+
+```{r correcion x8}
+Datos_de_ViviendaAux<-Datos_de_Vivienda
+Datos_de_ViviendaAux["P8520S1"][Datos_de_ViviendaAux["P8520S1"] == 2] <- 0
+Datos_de_ViviendaAux["P8520S3"][Datos_de_ViviendaAux["P8520S3"] == 2] <- 0
+Datos_de_ViviendaAux["P8520S4"][Datos_de_ViviendaAux["P8520S4"] == 2] <- 0
+Datos_de_ViviendaAux["P8520S5"][Datos_de_ViviendaAux["P8520S5"] == 2] <- 0
+```
+
+```{r x8}
+Datos_de_ViviendaAbuelo<-Datos_de_ViviendaAux%>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,FEX_C,P8520S1,P8520S3,P8520S4,P8520S5,P4065S1,P4065S4,P5661S4,P5661S9,P5661S7,P5661S6,P3157)%>%
+    mutate(Servicios_Basicos=P8520S1+P8520S3+P8520S4+P8520S5)%>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,FEX_C,Servicios_Basicos)
+
+```
+
+
+
+```{r Unificacion bases}
+Union1<- merge(Caracteristicas_de_Abuelo,Condiciones_HogarAbuelo)
+Union2<-merge(Union1,Datos_de_ViviendaAbuelo)
+Union<- merge(Union2,SaludAbuelo) 
+
+```
+
+```{r}
+BaseFinalAbuelo<-Union%>%
+  dplyr::select(-ï..DIRECTORIO,-SECUENCIA_ENCUESTA,-SECUENCIA_P,-FEX_C)
+  
+```
+
+```{r}
+Partir2=sample.split(BaseFinalAbuelo,SplitRatio = 0.8)
+DatosEntrenamientoAbuelo=subset(BaseFinalAbuelo,Partir2==TRUE)
+DatosValidacionAbuelo=subset(BaseFinalAbuelo,Partir2==FALSE)
+```
+
+```{r}
+pairs(DatosEntrenamientoAbuelo)
+```
+
+```{r}
+names(BaseFinalAbuelo)
+```
+
+
+```{r}
+set.seed(20220428) 
+
+Control_abuelos<-trainControl(method = "cv",number = 20)
+
+Aproximacion_abuelos<-train(Satisfaccion ~ Edad+Estado_Civil+Sensacion_de_seguridad+Condicion_del_Hogar+Tenencia_de_bienes_importantes+Tenencia_de_bienes_secundarios
+                   +Servicios_Basicos+Salud,
+             data       = BaseFinalAbuelo,
+             method     = "knn",
+             preProcess = c("center","scale"),
+             tuneGrid   = expand.grid(k = 1:30),
+             trControl  = Control_abuelos,
+             metric     = "RMSE")
+```
+
+```{r}
+Aproximacion_abuelos
+```
+
+se escoge un k=30 para este caso , evaluando en numero de k altos se aplana 1.70
+
+
+```{r}
+XA_Natural<- subset(BaseFinalAbuelo,select=c(Edad,Estado_Civil,Sensacion_de_seguridad,Condicion_del_Hogar,Tenencia_de_bienes_importantes,
+                                                   Tenencia_de_bienes_secundarios,Servicios_Basicos,Salud))
+YA <- BaseFinalAbuelo$Satisfaccion
+XA_Centrada <- scale(XA_Natural,center = TRUE, scale = TRUE)
+media_totalA <- attr(XA_Centrada,'scaled:center')
+desviacion_estandar_A <- attr(XA_Centrada,'scaled:scale')
+```
+
+se crea un  modelo KNN con K=30 vecinos
+
+```{r}
+modelo_knn_k30A <- knnreg(x=XA_Centrada,y=YA,k=30)
+```
+
+
+```{r}
+modelo_knn_k30A
+```
+```{r}
+save(file="modeloAbuelo.RData",list=c("modelo_knn_k30A",
+                                   "media_totalA",
+                                   "desviacion_estandar_A"))
+```
+
+
+
+

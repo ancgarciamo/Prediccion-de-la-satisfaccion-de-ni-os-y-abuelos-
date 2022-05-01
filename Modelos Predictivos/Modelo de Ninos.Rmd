@@ -1,0 +1,209 @@
+---
+title: "Modelo de Ninos"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Lectura de librerias}
+library(readr)
+library(dplyr,warn.conflicts = FALSE)
+library(tidyr,warn.conflicts = FALSE)
+library(tidyverse,warn.conflicts = FALSE)
+library(lubridate,warn.conflicts = FALSE)
+library(writexl)
+library(caTools)
+library(caret)
+library(Metrics)
+```
+
+```{r Bases de datos para trabajar con niños}
+
+Caracteristicas_hogar <- read.csv2("Caracteristicas y composicion del hogar.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+
+Educacion <- read.csv2("Educacion.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+
+Salud <- read.csv2("Salud.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+
+Tecnologias_info_y_comunicacion <- read.csv2("Tecnologias de informacion y comunicacion.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+
+Trabajoinfantil <- read.csv2("Trabajo infantil.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+```
+
+las bases de datos que se escogeran para el modelo de niños seran caracteristicas y composicion del hogar , Educacion , Salud, Tecnologias de informacion , Trabajo infantil, las demas bases de datos se excluyeron en el analisis descriptivo.
+
+Ingenieria de caracteristicas:
+
+X1: Edad
+De la base de datos Caracteristicas y composicion del hogar se toma la variable P6040 que indica cuantos años ha cumplido
+
+X2: Ocupacion
+De la base de datos de Trabajo infantil la variable P400 indica la ocupacion respecto a si busca trabajo o no, tomando rangos de 1 a 6
+Siendo 1 trabajando , 2 buscando trabajo , 3 Estudiando , 4 Oficio ,5 Incapacitado para trabajar, 6 Otro
+
+X3:Sabe leer y escribir
+De la base de datos Educacion la variable P6160 toma valores para decidir de 1 si sabe leer/escribir y de 2 si no sabe escribir 
+
+X4:Uso de dispositivos electronicos diferentes al celular
+De la base de datos de tecnologias de informacion y comunicacion  usando las variables P1910,P1911,P1912 que indican en una escala del 1 al 5 siendo 1 mucho y 5 nada.
+los dispositivos son computador de escritorio , portatil y tableta, se separan de celular ya que el celular es siempre un caso aparte , es mas mucho mas accesible y  por lo general limitado que estos dispositivos electronicos
+al final tomamos la suma de todos los usos , se divide entre 3 y a ese resultado se castea como entero; y asi tenemos un uso promedio en los 3 dispositivos con la escala  de 1 a 5 de la mimsa manera que como se clasificaron individualmente
+
+x5:Uso de Internet
+De la base de datos de tecnologias de informacion y comunicacion usa la variable P1083 que indica cuanto usa una persona un celular en una escala del 1 al 5, siendo 1 mucho y siendo 5 que no usa internet
+
+X6: Uso de Celular
+De la base de datos de tecnologias de informacion y comunicacion usa la variable P769 que indica cuanto usa una persona un celular en una escala del 1 al 5, siendo 1 mucho y siendo 5 que no usa un celular en absoluto
+
+x7:Numero de actividades de ocio en internet
+De la base de datos de tecnologias de informacion y comunicacion se toman las variables  P1083S3,P1083S,P1083S9,P1083S10,P1083S11 estas fueron seleccionadas ya que indican 1 en caso de que realizen la actividad determinada y 0 en caso de que no la realicen
+las  actividades que de ocio para hacer en internet son redes sociales , descargar software/juegos , consulta de medios de comunicacion , television/videos/peliculas y otros.
+Al final se suman la cantidad de actividades que realizan y esa es la variable
+
+x8:Numero de actividades de ocio en celulares
+De la base de datos de tecnologias de informacion y comunicacion se toman las variables P1080S1,P1080S3,P1080S4,P1080S6 estas fueron seleccionadas ya que indican 1 en caso de que realizen la actividad determinada y 0 en caso de que no la realicen
+en este caso las actividades de ocio que se seleccionaron fueron llamadas personales , mensajeria instantanea , uso de internet u otros.
+Al final se suman la cantidad de actividades que realizan y esa es la variable
+
+X9:Salud
+De la base de datos Salud se obtiene la variable P6127 que nos indica como de salud se siente en general la persona , tomando valores de 1 a 4	,siendo 1  muy bueno ,2 siendo bueno, 3 siendo regular y  4  malo
+
+
+Y: Satisfaccion
+De la base de datos Caracteristicas y composicion del hogar tomamos la variable P1895 que indica la satisfaccion de 0 a 10, siendo 0 lo mas insatisfecho con la vida y 10 lo mas satifecho con la vida
+
+Ahora del analisis descriptivo sabiamos que lo niños  no respondieron satisfaccion , asi que teniendo en cuenta la probabilidad de las frecuencias de satisfaccion de todos los demas datos , ademas como no hay relacion aparente entre el grado de satisfaccion y la edad, entonces asignamos a los datos sin responder de los niños una satisfaccion , teniendo en cuenta la probabilidad de las personas que no son niños.
+
+
+```{r}
+Caracteristicas_hogar[is.na(Caracteristicas_hogar)] <-  sample(0:10, sum(is.na(Caracteristicas_hogar)), replace = TRUE,prob=c(0.004002446,0.001978849,0.004872543,0.010769315,0.017456632,0.057297131,0.078209291,0.153674047,0.275552263, 0.161082301,0.235105182))
+
+```
+
+```{r x1 y x3 x2}
+CaracteristicasNinos<-Caracteristicas_hogar %>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,FEX_C,P6040,P1895)%>%
+  filter(P6040<13 & P6040>3)%>%
+  rename(Satisfaccion=P1895)%>%
+  rename(Edad=P6040)
+
+EducacionNinos<-Educacion%>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,FEX_C,P6160)%>%
+  rename(leer_escribir=P6160)
+
+Trabajoinfantil_limpio<-Trabajoinfantil%>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,FEX_C,P400)%>%
+  rename(Ocupacion=P400)
+```
+
+
+```{r x4 x5 x6 x7 x8}
+Tecnologias_info_y_comunicacionLimpieza1<- Tecnologias_info_y_comunicacion %>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,P1910,P1911,P1912,P1084,P1083S3
+          ,P1083S8,P1083S9,P1083S10,P1083S11,P769,P1080S1,P1080S3,P1080S4,P1080S6)%>%
+  mutate(across(everything(), .fns = ~replace_na(.,0))) %>%
+  mutate(n_act_ocio_int=P1083S3+P1083S8+P1083S9+P1083S10+P1083S11)%>%
+  mutate(uso_disp_no_cell=as.integer((P1910+P1911+P1912)/3) )%>%
+  mutate(n_act_ocio_cell=P1080S1+P1080S3+P1080S4+P1080S6)%>%
+  mutate(uso_cell=P769)%>%
+    mutate(uso_web=P1084)
+
+Tecnologias_info_y_comunicacionNinos<-  Tecnologias_info_y_comunicacionLimpieza1%>%
+  dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,uso_web,uso_cell,n_act_ocio_cell,uso_disp_no_cell,
+                 n_act_ocio_int)
+```
+
+
+```{r x9}
+SaludNinos<-Salud%>%
+    dplyr::select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,P6127)%>%
+    rename(Salud=P6127)
+```
+
+Ahora del analisis descriptivo sabiamos que lo niños  no respondieron satisfaccion , asi que teniendo en cuenta la probabilidad de las frecuencias de satisfaccion de todos los demas datos , ademas como no hay relacion aparente entre el grado de satisfaccion y la edad, entonces asignamos a los datos sin responder de los niños una satisfaccion , teniendo en cuenta la probabilidad de las personas que no son niños.
+
+
+
+
+```{r}
+UnionN1<- merge(CaracteristicasNinos,EducacionNinos)
+UnionN2<-merge(UnionN1,Trabajoinfantil_limpio)
+UnionN3<- merge(UnionN2,Tecnologias_info_y_comunicacionNinos) 
+UnionN<-merge(UnionN3,SaludNinos) 
+```
+
+
+```{r}
+BaseFinalNinos<-UnionN%>%
+  dplyr::select(-ï..DIRECTORIO,-SECUENCIA_ENCUESTA,-SECUENCIA_P,-FEX_C)
+  
+```
+
+```{r}
+Partir3=sample.split(BaseFinalNinos,SplitRatio = 0.8)
+DatosEntrenamientoNinos=subset(BaseFinalNinos,Partir3==TRUE)
+DatosValidacionNinos=subset(BaseFinalNinos,Partir3==FALSE)
+```
+
+```{r}
+pairs(DatosEntrenamientoNinos)
+```
+```{r obtencion de nombres}
+names(BaseFinalNinos)
+```
+
+
+```{r aproximacion para modelo de niños}
+set.seed(20220428) 
+
+control_ninos<-trainControl(method = "LGOCV",p=0.8,number = 1)
+
+aproximacion_ninos<-train(Satisfaccion ~ Edad+leer_escribir+Ocupacion+uso_web+uso_cell+n_act_ocio_cell+uso_disp_no_cell
+                    +n_act_ocio_int+Salud,
+             data       = BaseFinalNinos,
+             method     = "knn",
+             preProcess = c("center","scale"),
+             tuneGrid   = expand.grid(k = 1:30),
+             trControl  = control_ninos,
+             metric     = "RMSE")
+```
+
+
+```{r}
+aproximacion_ninos
+```
+se usara un k=29 para el modelo
+
+```{r}
+XN_Natural <- subset(BaseFinalNinos,select=c(Edad,leer_escribir,Ocupacion,uso_web,uso_cell,n_act_ocio_cell,uso_disp_no_cell
+                    ,n_act_ocio_int,Salud))
+YN <- BaseFinalNinos$Satisfaccion
+XN_Centrada <- scale(XN_Natural,center = TRUE, scale = TRUE)
+media_totalN <- attr(XN_Centrada,'scaled:center')
+desviacion_estandarN <- attr(XN_Centrada,'scaled:scale')
+```
+
+se crea un  modelo KNN con K=29 vecinos
+
+```{r}
+modelo_knn_k29N <- knnreg(x=XN_Centrada,y=YN,k=29)
+```
+
+```{r}
+save(file="modeloNino.RData",list=c("modelo_knn_k29N",
+                                   "media_totalN",
+                                   "desviacion_estandarN"))
+```
+
+
