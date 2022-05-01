@@ -1,0 +1,207 @@
+---
+title: "Analisis descriptivo Trabajo 01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+```
+
+
+```{r Importacion de librerias}
+library(readr)
+library(dplyr,warn.conflicts = FALSE)
+library(tidyr,warn.conflicts = FALSE)
+library(tidyverse,warn.conflicts = FALSE)
+library(lubridate,warn.conflicts = FALSE)
+```
+
+
+```{r Importacion de Bases de datos}
+Atencion_integral <- read.csv2("Atencion integral de los ninos y ninas menores de 5 anios.csv",
+    header=TRUE, row.names=NULL, dec=";")
+
+Caracteristicas_hogar <- read.csv2("Caracteristicas y composicion del hogar.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Condiciones_Hogarprogramas1 <- read.csv2("Condiciones de vida del hogar y tenencia de bienes (programas).csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Condiciones_Hogarprogramas2 <- read.csv2("Condiciones de vida del hogar y tenencia de bienes programas.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Condiciones_HogarBienes <- read.csv2("Condiciones de vida del hogar y tenencia de bienes.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Datos_de_Vivienda <- read.csv2("Datos de la vivienda.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Educacion <- read.csv2("Educacion.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+FuerzaTrabajo <- read.csv2("Fuerza de trabajo.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+GastosHogarItem <- read.csv2("Gastos de los hogares (Gastos por Item).csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+GastosHogarLugarCompra <- read.csv2("Gastos de los hogares (lugares de compra).csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Salud <- read.csv2("Salud.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+ServiciosHogar <- read.csv2("Servicios del hogar.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Tecnologias_info_y_comunicacion <- read.csv2("Tecnologias de informacion y comunicacion.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+tenenciafinanciacion_escritura <- read.csv2("Tenencia y financiacion de la vivienda que ocupa el hogar (escritura personas).csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+tenenciafinanciacion <- read.csv2("Tenencia y financiacion de la vivienda que ocupa el hogar.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+
+Trabajoinfantil <- read.csv2("Trabajo infantil.csv", 
+    header=TRUE, row.names=NULL, dec=";")
+```
+
+
+Queremos encontrar la satisfaccion de las personas que se consideran niños y abuelos , hay una variable en la encuesta de caracteristicas y composicion del hogar que nos dice cuan satisfecha esta una persona con su vida actualmente en una escala del 0 al 10 , siendo 0 lo mas insatisfecho y 10 lo mas satisfecho.
+
+asi que tomamos la base de datos de caracteristicas del hogar y seleccionamos la variable de cuantos años lleva cumplidos hasta ahora , lo cual es la edad , y tomamos las variables que indican satisfaccion
+
+```{r}
+AnalisisEdadySatisfaccion<-Caracteristicas_hogar%>%
+  select(P6040,P1895,P1901,P1904)%>%
+  rename(Edad=P6040,
+         Satisfaccion=P1895,
+         Felicidad=P1901,
+         Tristeza=P1904)%>%
+  filter(is.na(Satisfaccion))
+```
+
+Usando un grafico de dispersion nos damos cuenta que no hay ninguna relacion aparente entre la edad y la satisfaccion , todas las personas de todas las edades pueden estar tanto satisfechas como insatisfechas con la vida , sin embargo esto es solo sin coorelacionarlo con otras variables, otra cosa importante que nos dice es que a partir de cierto numero es que los encuestados empiezan a responder si se sienten satisfechos o no satisfechos con la vida.
+```{r}
+ggplot(aes(x=P6040,y=P1895),data=Caracteristicas_hogar)+
+  geom_point()+labs(y= "Satisfaccion", x = "Edad") 
+```
+asi que hacemos un filtro de cuales valores unicos son los que no respondieron a la pregunta de que tan satisfechos estan , con la vida, lo cual arroja que las personas de edades de 0 a 14 años.
+```{r}
+unique(AnalisisEdadySatisfaccion$Edad)
+```
+Asi que en una tabla miramos el numero de encuestados , y vemos que del total hay 65958 personas que no indicaron un grado de satisfaccion.
+
+```{r}
+Satisfaccionprobabilidad<-Caracteristicas_hogar%>%
+  mutate(Satisfaccion=P1895)%>%
+  group_by(Satisfaccion) %>%
+  summarise('Numero de encuestados' = n())
+Satisfaccionprobabilidad
+```
+
+```{r}
+
+```
+
+
+De las personas que si respondieron obtenemos la frecuencia con las cuales estos eligen cada satisfaccion. estas frecuencias se usaran para a los valores que no respondieron asignarle una satisfaccion , asi como la edad no influye en la satisfaccion podremos asignarle a las edades faltantes un valor de satisfaccion y asi obtener la variable objetivo para niños.
+
+```{r}
+Probabilidad_de_satisfaccion<-Satisfaccionprobabilidad%>%
+  filter(!is.na(Satisfaccion))%>%
+  mutate(frecuencia=(`Numero de encuestados`/(nrow(Caracteristicas_hogar)-65958)))
+
+Probabilidad_de_satisfaccion
+```
+
+
+
+
+
+```{r}
+# AnalisisEdadySatisfaccion2[is.na(AnalisisEdadySatisfaccion2)] <-  sample(0:10, sum(is.na(AnalisisEdadySatisfaccion2)), replace = TRUE,prob=c(0.004002446,0.001978849,0.004872543,0.010769315,0.017456632,0.057297131,0.078209291,0.153674047,0.275552263, 0.161082301,0.235105182))
+
+```
+
+https://www.icbf.gov.co/cargues/avance/docs/concepto_icbf_0027891_2010.htm
+https://www.ceupe.com/blog/etapas-de-desarrollo-de-la-conciencia.html
+Ahora veremos que bases de datos tambien excluyen a los niños , para los cuales hemos escogido un limite de edad de 12 años segun el instituto de bienestar familiar , ya que a partir de esta edad si bien no son adultos , ya por lo general son considerados adolescentes. , y tambien escogeremos un limite de que los niños tienen que ser mayores de 3 años , ya que a esta edad los niños adquieren su yo propio , por lo cual podrian teoricamente responder la encuesta.
+
+
+
+```{r}
+DatosNinos <- Caracteristicas_hogar%>%
+  select(ï..DIRECTORIO,SECUENCIA_ENCUESTA,SECUENCIA_P,FEX_C,P6040,P1895)%>%
+  filter(P6040<13 & P6040>3)%>%
+  rename(Satisfaccion=P1895)%>%
+  rename(Edad=P6040)
+```
+
+Solo una cantidad significativa de niños responde a las encuestas de  atencion integral , educacion,salud,trabajo infantil ,gastos de hogar por item y tecnologias.
+De estas se excluiran atencion integral ya que cubre niños menores de 5 años y no todos los niños en general.
+
+```{r}
+NinosVivienda<-merge(DatosNinos,Datos_de_Vivienda)
+NinosAtencionIntegral<-merge(DatosNinos,Atencion_integral)
+NinosHogarPrograma1<-merge(DatosNinos,Condiciones_Hogarprogramas1)
+NinosHogarPrograma2<-merge(DatosNinos,Condiciones_Hogarprogramas2)
+NinosHogarBienes<-merge(DatosNinos,Condiciones_HogarBienes)
+NinosEducacion<-merge(DatosNinos,Educacion)
+NinosFuerzaTrabajo<-merge(DatosNinos,FuerzaTrabajo)
+NinosGastosHogarItem<-merge(DatosNinos,GastosHogarItem)
+NinosGastosLugarCompra<-merge(DatosNinos,GastosHogarLugarCompra)
+NinosSalud<-merge(DatosNinos,Salud)
+NinosServiciosHogar<-merge(DatosNinos,ServiciosHogar)
+NinosTecnologias<-merge(DatosNinos,Tecnologias_info_y_comunicacion)
+NinosTenenciaEscritura<-merge(DatosNinos,tenenciafinanciacion_escritura)
+NinosTenenciaFinanciacion<-merge(DatosNinos,tenenciafinanciacion)
+NinosTrabajoInfantil<-merge(DatosNinos,Trabajoinfantil)
+
+
+```
+
+los datos correspondientes corresponde a la cantidad de niños que respondieron en las encuestas son:
+
+```{r}
+numero_de_observaciones<-c(nrow (NinosVivienda),nrow(NinosAtencionIntegral),nrow(NinosHogarPrograma1),nrow(NinosHogarPrograma2),nrow(NinosHogarBienes),
+                          nrow(NinosEducacion),nrow(NinosFuerzaTrabajo),nrow(NinosGastosHogarItem),nrow(NinosGastosLugarCompra),nrow(NinosSalud)
+                          ,nrow(NinosServiciosHogar),nrow(NinosTecnologias),nrow(NinosTenenciaEscritura),nrow(NinosTenenciaFinanciacion)
+                          ,nrow(NinosTrabajoInfantil))
+
+
+Encuesta<-c("Datos de vivienda","Atencion integral","Condiciones de Hogar y tenencia de bienes por programas 1","Condiciones de Hogar y tenencia de bienes por programas 2"
+,"Condiciones de Hogar y tenencia de bienes en general","Educacion","Fuerza de trabajo","Gastos Hogar Item","Gastos Lugar de Compra"
+,"Salud","Servicios del Hogar","Tecnologias de informacion y comunicacion","tenencia y financiacion de la vivienda por la escritura "
+,"tenencia y financiacion de la vivienda","trabajo infantil")
+N_Observaciones_encuesta <- data.frame( Encuesta,numero_de_observaciones)
+N_Observaciones_encuesta
+```
+
+Para escoger a los abuelos primero miramos como es la alternativa de parentesco con el jefe de la casa , en este caso padre,madre,padrastro,madrastra del jefe de la casa ademas de yerno,nuera. miramos el numero de observaciones y vemos que solo contamos con 5678 , de mas 200000 observaciones , lo cual no hace una muestra significativa, asi que tomando un camino mas arriesgado usaremos otra alternativa.
+
+```{r}
+AlternativaAbuelos1<-Caracteristicas_hogar%>%
+  select(P6051)%>%
+  filter(P6051==8 | P6051==5)
+nrow(AlternativaAbuelos1)
+```
+https://www.eugin.com.co/eugin-presenta-la-primera-encuesta-internacional-sobre-fertilidad-edad-para-tener-hijos-donacion-de-ovulos/
+
+https://www.eltiempo.com/vida/educacion/crece-tendencia-de-parejas-jovenes-a-no-tener-hijos-465196
+
+En un articulo sobre la fertilidad para tener hijos cita que en colombia la edad promedio para tener el  hijo es de 22 años , en 2 generaciones seria aproximadamente 45 años , asi que asumiremos que la poblacion mayor de 45 años en ese sentido es apta para ser abuelos. ahora en otro articulo del tiempo , estipula que un censo del 2018 del DANE , son 40 % los hogares sin hijos , asi que tomaremos la poblacion mayor de 45 años que respondio la encuesta y tomaremos un 60% de los datos de las personas.
+esto nos arroja una cantidad de 49203 personas , lo cual es una mejor muestra que la alternativa anterior, sin embargo esta alternativa se basa en suposiciones asi que puede ser mas inestable , sin embargo usaremos esta alternativa.
+
+
+```{r}
+AlternativaAbuelos2<-Caracteristicas_hogar%>%
+  select(P6040)%>%
+  filter(P6040>44)
+
+totalmayores44<-nrow(AlternativaAbuelos2)
+totalporcentaje60<-totalmayores44*0.6
+totalporcentaje60
+```
+
