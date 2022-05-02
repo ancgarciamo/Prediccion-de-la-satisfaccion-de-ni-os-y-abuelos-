@@ -50,8 +50,7 @@ Con los modelos montados , en la interfaz podemos ver como de acuerdo a las opci
 
 ### Video Promocional
 El video se podra ver en la siguiente direccion:
-
-
+https://www.youtube.com/watch?v=A0gjqATNwdU
 
 ### Aplicacion Web
 En la siguiente aplicacion podra consultar en la siguiente direccion:
