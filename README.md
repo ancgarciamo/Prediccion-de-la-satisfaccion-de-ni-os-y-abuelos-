@@ -41,8 +41,14 @@ Para los abuelos se tomo variables simples como el estado civil , como se siente
 
 Para los niños se tomo en que se ocupan , si saben leer o escribir , el uso de dispositivos electronicos separados por el celular y los demas , ademas de las actividades de ocio en internet y en un celular.
 
+Las variables se unen en una sola base de datos , una para cada modelo y a estas se les aplica el metodo de los vecinos mas cercanos.
+Con una aplicacion en RShiny se montan los modelos y se ejecutan en una interfaz.
+### Resultados 
+
+
 ### Video Promocional
 El video se podra ver en la siguiente direccion:
+
 
 
 ### Aplicacion Web
