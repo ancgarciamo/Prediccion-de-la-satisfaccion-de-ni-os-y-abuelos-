@@ -44,7 +44,9 @@ Para los niños se tomo en que se ocupan , si saben leer o escribir , el uso de 
 Las variables se unen en una sola base de datos , una para cada modelo y a estas se les aplica el metodo de los vecinos mas cercanos.
 Con una aplicacion en RShiny se montan los modelos y se ejecutan en una interfaz.
 ### Resultados 
+Con los modelos montados , en la interfaz podemos ver como de acuerdo a las opciones que se escojan , la aplicacion intenta predecir la satisfaccion del usuario.
 
+![](https://github.com/ancgarciamo/Prediccion-de-la-satisfaccion-de-ni-os-y-abuelos-/blob/main/Imagenes/aplicacion.PNG)
 
 ### Video Promocional
 El video se podra ver en la siguiente direccion:
